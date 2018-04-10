@@ -98,7 +98,7 @@ int main(){
 
    for (int i = 0; i < 100; i++){
       DisplaySpace();
-      Sleep(100);
+      //Sleep(10);
       if (kbhit()){
          inp = getch();
          Move(inp);
