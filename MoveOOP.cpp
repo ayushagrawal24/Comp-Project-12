@@ -3,7 +3,8 @@
 #include <windows.h>
 #include <conio.h>
 
-#define spacecraft s
+#define rows 25
+#define cols 80
 
 using namespace std;
 
@@ -17,91 +18,62 @@ class Space{
    static char ReturnChar(int);
 
 protected:
-   static int area[25][50];
+   static char area[rows][cols];
    void Move(char, Pos&, int, int);
 
 public:
    static void DisplaySpace();
    Space(){
-      for(int i = 0; i < 25; i++){
-         for (int j = 0; j < 50; j++){
-            area[i][j] = 0;
+      for(int i = 0; i < rows; i++){
+         for (int j = 0; j < cols; j++){
+            area[i][j] = ' ';
          }
       }
    }
 };
 
-int Space::area[25][50] = {};
+char Space::area[rows][cols] = {};
 
 
 //shifts the values by one
 void Space::Move(char ch, Pos &pos, int h, int w){
+
    //left - a
-   if (ch == 'a'){
+   if (ch == 'a' && pos.j >= 0){
       for(int r = pos.i; r < pos.i + h; r++){
          for (int c = pos.j; c <= pos.j+w; c++)
             area[r][c] = area[r][c+1];
       }
       pos.j--;
    }
-   //up - w
-   else if (ch == 'w'){
-      for(int c = pos.j; c <= pos.j+w; c++){
-         for (int r = pos.i-1; r < pos.i+h; r++)
-            area[r][c] = area[r+1][c];
-      }
-      pos.i--;
-   }
    //right - d
-   if (ch == 'd'){
+   else if (ch == 'd' && pos.j + w + 1 < cols){
       for(int r = pos.i; r < pos.i+h; r++){
          for (int c = pos.j+w+1; c >= pos.j; c--)
             area[r][c] = area[r][c-1];
       }
       pos.j++;
    }
-   //down
-   else if (ch == 's'){
-      for(int c = pos.j; c <= pos.j+w; c++){
-         for (int r = pos.i+h; r >= pos.i; r--)
-            area[r][c] = area[r-1][c];
-      }
-      pos.i++;
-   }
-}
-
-
-char Space::ReturnChar(int x){
-   if (x == 1)
-      return '/';
-   else if (x == 2)
-      return '\\';
-   else if (x == 3)
-      return '_';
-   else if (x == 4)
-      return '|';
-
-   return ' ';
 }
 
 
 void Space::DisplaySpace(){
 
    cout << "|";
-   for(int i = 0; i < 50; i++)
+   for(int i = 0; i < cols; i++)
       cout << "-";
    cout << "|\n";
 
-   for (int i = 0; i < 25; i++){
+   for (int i = 0; i < rows; i++){
       cout << "|";
-      for (int j = 0; j < 50; j++){
-         cout << ReturnChar(area[i][j]);
+      for (int j = 0; j < cols; j++){
+         cout << area[i][j];
       }
       cout << "|\n";
    }
 
    cout << "|";
-   for(int i = 0; i < 50; i++)
+   for(int i = 0; i < cols; i++)
       cout << "-";
    cout << "|\n";
 }
@@ -112,28 +84,32 @@ class Spacecraft : public Space{
    Pos pos;
 
 public:
-   void Move(char);
-   Spacecraft(int h, int w){
-      height = h;
-      width = w;
-      pos = {22, 19};
+   void Control(char);
+   void Shoot();
+   Spacecraft(){
+      height = 2;
+      width = 6;
+      pos = {22, 34};
 
-      area[22][22] = 1;
-      area[23][21] = 1;        // forward slash - '/'
+      area[22][37] = '/';
+      area[23][36] = '/';        // forward slash - '/'
 
-      area[22][23] = 2;        // backward slash - '\'
-      area[23][24] = 2;
+      area[22][38] = '\\';        // backward slash - '\'
+      area[23][39] = '\\';
 
-      area[23][22] = 3;        // underscore - '_'
-      area[23][23] = 3;
+      area[23][37] = '_';        // underscore - '_'
+      area[23][38] = '_';
 
-      area[23][20] = 4;        // vertical bar - '|'
-      area[23][25] = 4;
+      area[23][35] = '|';        // vertical bar - '|'
+      area[23][40] = '|';
    }
 };
 
-void Spacecraft::Move(char ch){
-   Space::Move(ch, pos, height, width);
+void Spacecraft::Control(char ch){
+   if(ch == 'a' || ch == 'd')
+      Move(ch, pos, height, width);
+   else if(ch == ' ')
+      Shoot();
 }
 
 int main(){
@@ -141,14 +117,14 @@ int main(){
    //user input
    char inp;
 
-   Spacecraft spacecraft(2, 6);
+   Spacecraft spacecraft;
 
-   for (int i = 0; i < 100; i++){
+   for (int i = 0; i < 1000; i++){
       Space::DisplaySpace();
-      Sleep(1000);
+      Sleep(100);
       if (kbhit()){
          inp = getch();
-         spacecraft.Move(inp);
+         spacecraft.Control(inp);
       }
       system("cls");
    }
